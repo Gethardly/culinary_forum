@@ -5,7 +5,7 @@ const rootPath = __dirname;
 const config = {
   rootPath,
   publicPath: path.join(rootPath, 'public'),
-  db: 'mongodb://localhost/ESDP-17',
+  db: 'mongodb://localhost/culinary-forum',
 };
 
 export default config;
