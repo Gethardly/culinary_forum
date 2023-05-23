@@ -156,7 +156,6 @@ usersRouter.post('/subscribe/:id', auth, async (req, res, next) => {
   try {
     const followerId = (req as RequestWithUser).user.id;
     const follower = await User.findById(followerId);
-    console.log(follower);
     if (!follower) {
       return res.status(404).send({ error: 'Follower not found!' });
     }
@@ -167,11 +166,11 @@ usersRouter.post('/subscribe/:id', auth, async (req, res, next) => {
     }
 
     if (!author.subscriptions.includes(followerId)) {
-      await User.updateOne({ _id: authorId }, { $push: { subscriptions: followerId } });
-      return res.send({ message: 'Subscribed' });
+      const updatedUser = await User.updateOne({ _id: authorId }, { $push: { subscriptions: followerId } });
+      return res.send({ message: 'Subscribed', updateInfo: updatedUser });
     } else {
-      await User.updateOne({ _id: authorId }, { $pull: { subscriptions: followerId } });
-      return res.send({ message: 'Unfollowed' });
+      const updatedUser = await User.updateOne({ _id: authorId }, { $pull: { subscriptions: followerId } });
+      return res.send({ message: 'Unfollowed', updateInfo: updatedUser });
     }
   } catch (e) {
     return next(e);
