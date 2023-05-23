@@ -68,6 +68,9 @@ const UserSchema = new Schema<IUser, UserModel, IUserMethods>({
       },
     },
   ],
+  avatar: {
+    type: String,
+  },
 });
 
 UserSchema.pre('save', async function (next) {

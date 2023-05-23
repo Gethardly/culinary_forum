@@ -8,6 +8,7 @@ export interface IUser {
   displayName: string;
   subscriptions: Schema.Types.ObjectId[];
   recipes: Schema.Types.ObjectId[];
+  avatar?: string | null;
 }
 
 export interface IRecipe {

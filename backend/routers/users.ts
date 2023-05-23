@@ -3,16 +3,18 @@ import User from '../models/User';
 import auth, { RequestWithUser } from '../middleware/auth';
 import permit from '../middleware/permit';
 import mongoose from 'mongoose';
+import { imagesUpload } from '../multer';
 
 const usersRouter = express.Router();
 
-usersRouter.post('/', auth, permit('admin'), async (req, res, next) => {
+usersRouter.post('/', imagesUpload.single('avatar'), async (req, res, next) => {
   try {
     const user = new User({
       email: req.body.email,
       displayName: req.body.displayName,
       password: req.body.password,
       role: req.body.role,
+      avatar: req.file ? req.file.filename : null,
     });
     user.generateToken();
     await user.save();
