@@ -1,6 +1,6 @@
 import express from 'express';
 import User from '../models/User';
-import auth from '../middleware/auth';
+import auth, { RequestWithUser } from '../middleware/auth';
 import permit from '../middleware/permit';
 import mongoose from 'mongoose';
 
@@ -22,6 +22,20 @@ usersRouter.post('/', auth, permit('admin'), async (req, res, next) => {
       return res.status(400).send(error);
     }
     return next(error);
+  }
+});
+
+usersRouter.delete('/:id', auth, permit('admin'), async (req, res, next) => {
+  try {
+    const user = await User.findOne({ _id: req.params.id });
+    if (!user) {
+      return res.send({ error: 'User is not found!' });
+    }
+
+    const deletedUser = await User.deleteOne({ _id: req.params.id });
+    return res.send(deletedUser);
+  } catch (e) {
+    return next(e);
   }
 });
 
@@ -138,15 +152,27 @@ usersRouter.delete('/sessions', async (req, res, next) => {
   }
 });
 
-usersRouter.delete('/:id', auth, permit('admin'), async (req, res, next) => {
+usersRouter.post('/subscribe/:id', auth, async (req, res, next) => {
   try {
-    const user = await User.findOne({ _id: req.params.id });
-    if (!user) {
-      return res.send({ error: 'User is not found!' });
+    const followerId = (req as RequestWithUser).user.id;
+    const follower = await User.findById(followerId);
+    console.log(follower);
+    if (!follower) {
+      return res.status(404).send({ error: 'Follower not found!' });
+    }
+    const authorId = req.params.id;
+    const author = await User.findById({ _id: authorId });
+    if (!author) {
+      return res.status(404).send({ error: 'Author not found!' });
     }
 
-    const deletedUser = await User.deleteOne({ _id: req.params.id });
-    return res.send(deletedUser);
+    if (!author.subscriptions.includes(followerId)) {
+      await User.updateOne({ _id: authorId }, { $push: { subscriptions: followerId } });
+      return res.send({ message: 'Subscribed' });
+    } else {
+      await User.updateOne({ _id: authorId }, { $pull: { subscriptions: followerId } });
+      return res.send({ message: 'Unfollowed' });
+    }
   } catch (e) {
     return next(e);
   }

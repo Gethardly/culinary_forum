@@ -14,13 +14,22 @@ const run = async () => {
     console.log('Collections were not present, skipping drop...');
   }
 
-  await User.create({
-    displayName: 'Test Admin',
-    email: 'test@test.com',
-    role: 'admin',
-    password: '123',
-    token: randomUUID(),
-  });
+  await User.create(
+    {
+      displayName: 'Test Admin',
+      email: 'test@test.com',
+      role: 'admin',
+      password: '123',
+      token: randomUUID(),
+    },
+    {
+      displayName: 'Test User',
+      email: 'test@test.com',
+      role: 'user',
+      password: '123',
+      token: randomUUID(),
+    },
+  );
 
   await db.close();
   console.log('Success');

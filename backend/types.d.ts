@@ -1,7 +1,19 @@
+import { Schema } from 'mongoose';
+
 export interface IUser {
   email: string;
   password: string;
   token: string;
   role: 'admin' | 'user';
   displayName: string;
+  subscriptions: Schema.Types.ObjectId[];
+  recipes: Schema.Types.ObjectId[];
+}
+
+export interface IRecipe {
+  title: string;
+  ingredients: string[];
+  instructions: string;
+  photoGallery: string[];
+  owner: Schema.Types.ObjectId;
 }

@@ -1,7 +1,8 @@
-import { HydratedDocument, Model, model, Schema } from 'mongoose';
+import { HydratedDocument, Model, model, Schema, Types } from 'mongoose';
 import { IUser } from '../types';
 import bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
+import Recipe from './Recipe';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -47,6 +48,26 @@ const UserSchema = new Schema<IUser, UserModel, IUserMethods>({
     type: String,
     required: true,
   },
+  recipes: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Recipe',
+      validate: {
+        validator: async (value: Types.ObjectId) => Recipe.findById(value),
+        message: 'Данного рецепта не существует!',
+      },
+    },
+  ],
+  subscriptions: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      validate: {
+        validator: async (value: Types.ObjectId) => User.findById(value),
+        message: 'Данный пользователь не существует!',
+      },
+    },
+  ],
 });
 
 UserSchema.pre('save', async function (next) {
