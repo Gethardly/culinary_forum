@@ -8,6 +8,7 @@ import Protected from './components/Protected';
 import { useAppSelector } from './app/hooks';
 import { selectUser } from './features/users/usersSlice';
 import 'rsuite/dist/rsuite.min.css';
+import Recipes from './features/recipes/Recipes';
 
 function App() {
   const user = useAppSelector(selectUser);
@@ -15,6 +16,8 @@ function App() {
     <Layout>
       <Routes>
         <Route path="*" element={'Not found'} />
+        <Route path="/" element={<Recipes />} />
+        <Route path="/my_recipes/:id" element={<Recipes />} />
         <Route path="/register" element={<CreateUser />} />
         <Route path="/login" element={<Login />} />
         <Route element={<Protected userRole={user?.role} priority="admin" />}>

@@ -65,3 +65,12 @@ export interface DeletedUserResponse {
   acknowledged: boolean;
   deletedCount: number;
 }
+
+export interface IRecipe {
+  _id: string;
+  title: string;
+  ingredients: string[];
+  instructions: string;
+  photoGallery: string[];
+  owner: User;
+}
