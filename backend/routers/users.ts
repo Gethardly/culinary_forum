@@ -4,8 +4,32 @@ import auth, { RequestWithUser } from '../middleware/auth';
 import permit from '../middleware/permit';
 import mongoose from 'mongoose';
 import { imagesUpload } from '../multer';
+import Recipe from '../models/Recipe';
 
 const usersRouter = express.Router();
+
+usersRouter.delete('/sessions', async (req, res, next) => {
+  try {
+    const token = req.get('Authorization');
+    const success = { message: 'ok' };
+
+    if (!token) {
+      return res.send(success);
+    }
+
+    const user = await User.findOne({ token });
+
+    if (!user) {
+      return res.send(success);
+    }
+
+    user.generateToken();
+    await user.save();
+    return res.send(success);
+  } catch (e) {
+    return next(e);
+  }
+});
 
 usersRouter.post('/', imagesUpload.single('avatar'), async (req, res, next) => {
   try {
@@ -35,6 +59,7 @@ usersRouter.delete('/:id', auth, permit('admin'), async (req, res, next) => {
     }
 
     const deletedUser = await User.deleteOne({ _id: req.params.id });
+    await Recipe.deleteMany({ owner: user._id });
     return res.send(deletedUser);
   } catch (e) {
     return next(e);
@@ -109,46 +134,21 @@ usersRouter.put('/:id', auth, async (req, res, next) => {
 });
 
 usersRouter.post('/sessions', async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email });
-
-  if (!user) {
-    return res.status(400).send({ error: 'Email or password is incorrect!' });
-  }
-
-  const isMatch = await user.checkPassword(req.body.password);
-
-  if (!isMatch) {
-    return res.status(400).send({ error: 'Email or password is incorrect!' });
-  }
-
   try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.status(400).send({ error: 'Email or password is incorrect!' });
+    }
+
+    const isMatch = await user.checkPassword(req.body.password);
+    if (!isMatch) {
+      return res.status(400).send({ error: 'Email or password is incorrect!' });
+    }
+
     user.generateToken();
     await user.save();
 
     return res.send({ message: 'Username and password correct!', user });
-  } catch (e) {
-    return next(e);
-  }
-});
-
-usersRouter.delete('/sessions', async (req, res, next) => {
-  try {
-    const token = req.get('Authorization');
-    const success = { message: 'ok' };
-
-    if (!token) {
-      return res.send(success);
-    }
-
-    const user = await User.findOne({ token });
-
-    if (!user) {
-      return res.send(success);
-    }
-
-    user.generateToken();
-    await user.save();
-    return res.send(success);
   } catch (e) {
     return next(e);
   }
@@ -167,12 +167,14 @@ usersRouter.post('/subscribe/:id', auth, async (req, res, next) => {
       return res.status(404).send({ error: 'Author not found!' });
     }
 
-    if (!author.subscriptions.includes(followerId)) {
-      const updatedUser = await User.updateOne({ _id: authorId }, { $push: { subscriptions: followerId } });
-      return res.send({ message: 'Subscribed', updateInfo: updatedUser });
+    if (!author.subscribers.includes(followerId)) {
+      const followerUpdated = await User.updateOne({ _id: followerId }, { $push: { subscriptions: authorId } });
+      await User.updateOne({ _id: authorId }, { $push: { subscribers: followerId } });
+      return res.send({ message: 'Subscribed', updateInfo: followerUpdated });
     } else {
-      const updatedUser = await User.updateOne({ _id: authorId }, { $pull: { subscriptions: followerId } });
-      return res.send({ message: 'Unfollowed', updateInfo: updatedUser });
+      const followerUpdate = await User.updateOne({ _id: followerId }, { $pull: { subscriptions: authorId } });
+      await User.updateOne({ _id: authorId }, { $pull: { subscribers: followerId } });
+      return res.send({ message: 'Unfollowed', updateInfo: followerUpdate });
     }
   } catch (e) {
     return next(e);

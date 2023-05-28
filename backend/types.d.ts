@@ -6,6 +6,7 @@ export interface IUser {
   token: string;
   role: 'admin' | 'user';
   displayName: string;
+  subscribers: Schema.Types.ObjectId[];
   subscriptions: Schema.Types.ObjectId[];
   recipes: Schema.Types.ObjectId[];
   avatar?: string | null;
