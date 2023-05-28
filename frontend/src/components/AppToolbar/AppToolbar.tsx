@@ -11,6 +11,7 @@ const StyledLink = styled(NavLink)({
   textDecoration: 'none',
   '&:hover': {
     color: 'inherit',
+    textDecoration: 'none',
   },
 });
 
@@ -18,13 +19,13 @@ const AppToolbar = () => {
   const user = useAppSelector(selectUser);
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ mb: 4 }}>
       <Toolbar>
         <Grid container sx={{ alignItems: 'center' }}>
           <Typography variant="h5" component="div" sx={{ flexGrow: 1, alignItems: 'center' }}>
             <StyledLink to="/">Culinary forum</StyledLink>
           </Typography>
-          <Grid item>{user ? <UserMenu user={user} /> : <AnonymousMenu />}</Grid>
+          <Grid>{user ? <UserMenu user={user} /> : <AnonymousMenu />}</Grid>
         </Grid>
       </Toolbar>
     </AppBar>

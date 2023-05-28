@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { useNavigate } from 'react-router-dom';
 import { User, UserMutation } from '../../types';
-import { Button, Divider, Menu, MenuItem, Typography } from '@mui/material';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { Autocomplete, Avatar, Box, Button, Divider, Menu, MenuItem, TextField, Typography } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { alpha, styled } from '@mui/material/styles';
 import LogoutIcon from '@mui/icons-material/Logout';
 import GroupIcon from '@mui/icons-material/Groups';
 import CottageIcon from '@mui/icons-material/Cottage';
@@ -19,6 +20,59 @@ import {
   selectUsersListData,
 } from '../../features/users/usersSlice';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import { apiURL } from '../../constants';
+import { selectRecipesList } from '../../features/recipes/recipesSlice';
+import { fetchRecipes } from '../../features/recipes/recipesThunks';
+
+const MenuUserBox = styled(Box)(
+  ({ theme }) => `
+        background: "black";
+        padding: ${theme.spacing(1)};
+`,
+);
+
+const UserBoxText = styled(Box)(
+  ({ theme }) => `
+        text-align: left;
+        padding-left: ${theme.spacing(1)};
+`,
+);
+
+const UserBoxLabel = styled(Typography)(
+  ({ theme }) => `
+        font-weight: ${theme.typography.fontWeightBold};
+        display: block;
+`,
+);
+
+const useStyles = makeStyles(() => ({
+  autocomplete: {
+    '& .MuiAutocomplete-input': {
+      height: '10px',
+    },
+  },
+}));
+
+const Search = styled('div')(({ theme }) => ({
+  position: 'relative',
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  marginLeft: 0,
+  width: '100%',
+  [theme.breakpoints.up('sm')]: {
+    marginLeft: theme.spacing(1),
+    width: 'auto',
+  },
+  height: '42px',
+}));
+
+interface LinkOption {
+  label: string;
+  id: string;
+}
 
 interface Props {
   user: User;
@@ -30,13 +84,24 @@ const UserMenu: React.FC<Props> = ({ user }) => {
   const editingUser = useAppSelector(selectOneEditingUser);
   const editLoading = useAppSelector(selectEditOneUserLoading);
   const usersListData = useAppSelector(selectUsersListData);
+  const recipesList = useAppSelector(selectRecipesList);
+  const optionsList: LinkOption[] = recipesList.map((recipe) => {
+    return {
+      id: recipe._id,
+      label: recipe.title,
+    };
+  });
   const mainUser = useAppSelector(selectUser);
   const error = useAppSelector(selectEditingError);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const classes = useStyles();
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
+  const avatarPic = apiURL + '/images/avatars/' + user.avatar;
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -61,12 +126,36 @@ const UserMenu: React.FC<Props> = ({ user }) => {
     }
   };
 
+  useEffect(() => {
+    dispatch(fetchRecipes());
+  }, [dispatch]);
+
   return (
     <>
-      <Button onClick={handleClick} color="inherit" style={{ textTransform: 'inherit' }}>
-        <Typography mr={1}>{user.displayName}</Typography>
-        <AccountCircleIcon />
-      </Button>
+      <MenuUserBox sx={{ minWidth: 210 }} display="flex" alignItems="center">
+        <Search>
+          <Autocomplete
+            disablePortal
+            onChange={(event, newValue: LinkOption | null) => {
+              if (newValue?.id !== undefined) {
+                navigate('recipes/' + newValue.id);
+              }
+            }}
+            className={classes.autocomplete}
+            options={optionsList}
+            sx={{ width: 300 }}
+            renderInput={(params) => <TextField {...params} label="Search recipes..." variant="outlined" />}
+            noOptionsText="Нет совпадений"
+          ></Autocomplete>
+        </Search>
+        <Button onClick={handleClick}>
+          <Avatar variant="rounded" alt={user.displayName} src={user.avatar ? avatarPic : ''} />
+          <UserBoxText color="white">
+            <UserBoxLabel variant="body1">{user.displayName}</UserBoxLabel>
+            <Typography variant="body2">{user.role}</Typography>
+          </UserBoxText>
+        </Button>
+      </MenuUserBox>
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
         {user.role === 'admin' && [
           <MenuItem
@@ -99,6 +188,7 @@ const UserMenu: React.FC<Props> = ({ user }) => {
           Редактировать профиль
         </MenuItem>
         <Divider key="user-divider" />
+        <MenuItem>Подписчики {user.subscribers.length}</MenuItem>
         <MenuItem
           sx={{ justifyContent: 'center' }}
           onClick={() => {
@@ -119,5 +209,4 @@ const UserMenu: React.FC<Props> = ({ user }) => {
     </>
   );
 };
-
 export default UserMenu;

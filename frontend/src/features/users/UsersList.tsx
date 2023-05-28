@@ -1,5 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Chip, Pagination, Paper, Table, TableBody, TableContainer, TableHead, TableRow } from '@mui/material';
+import {
+  Box,
+  Chip,
+  Pagination,
+  Paper,
+  styled,
+  Table,
+  TableBody,
+  TableCell,
+  tableCellClasses,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '@mui/material';
 import CardUser from './components/CardUser';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
@@ -16,8 +29,9 @@ import { deleteUser, getEditingUser, getUsersList, updateUser } from './usersThu
 import UserForm from './components/UserForm';
 import { UserMutation } from '../../types';
 import ModalBody from '../../components/ModalBody';
-import { StyledTableCell } from './theme';
 import SnackbarCard from '../../components/SnackbarCard/SnackbarCard';
+import useConfirm from '../../components/Dialogs/Confirm/useConfirm';
+import useAlert from '../../components/Dialogs/Alert/useAlert';
 
 const UsersList = () => {
   const dispatch = useAppDispatch();
@@ -28,18 +42,24 @@ const UsersList = () => {
   const editLoading = useAppSelector(selectEditOneUserLoading);
   const error = useAppSelector(selectEditingError);
   const [userID, setUserID] = useState('');
-
+  const { confirm } = useConfirm();
+  const { alert } = useAlert();
+  const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    [`&.${tableCellClasses.head}`]: {
+      color: theme.palette.common.white,
+    },
+  }));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const removeUser = async (userId: string) => {
     if (user?._id !== userId) {
-      if (window.confirm('Do you really want to delete this user?')) {
+      if (await confirm('Предупреждение', 'Вы действительно хотите удалить пользователя')) {
         await dispatch(deleteUser(userId)).unwrap();
         await dispatch(getUsersList({ page: usersListData.page, perPage: usersListData.perPage })).unwrap();
         dispatch(openSnackbar({ status: true, parameter: 'remove' }));
       }
     } else {
-      window.alert('U cant delete your own account');
+      alert('Уведомление', 'Вы не можете удалить самого себя');
     }
   };
 
@@ -50,7 +70,7 @@ const UsersList = () => {
   };
 
   const onFormSubmit = async (userToChange: UserMutation) => {
-    if (window.confirm('Вы действительно хотите отредактировать ?')) {
+    if (await confirm('Уведомление', 'Вы действительно хотите отредактировать ?')) {
       try {
         await dispatch(updateUser({ id: userID, user: userToChange })).unwrap();
         await dispatch(getUsersList({ page: usersListData.page, perPage: usersListData.perPage }));
@@ -75,7 +95,6 @@ const UsersList = () => {
           sx={{ mb: 2, fontSize: '20px', p: 3 }}
           label={'Список пользователей: ' + usersListData.count}
           variant="outlined"
-          color="info"
         />
 
         <Box>

@@ -4,6 +4,10 @@ export interface User {
   displayName: string;
   token: string;
   role: string;
+  avatar: string;
+  subscribers: string[];
+  subscriptions: string[];
+  recipes: string[];
 }
 
 export interface LoginMutation {

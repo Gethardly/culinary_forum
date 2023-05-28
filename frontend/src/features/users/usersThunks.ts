@@ -45,8 +45,8 @@ export const createUser = createAsyncThunk<void, UserMutation, { rejectValue: Va
 );
 
 export const logout = createAsyncThunk<void, void, { state: RootState }>('users/logout', async (_, { dispatch }) => {
-  dispatch(unsetUser());
   await axiosApi.delete('/users/sessions');
+  dispatch(unsetUser());
 });
 
 type RequestParams = { page: number; perPage: number } | undefined;

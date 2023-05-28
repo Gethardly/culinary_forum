@@ -17,7 +17,7 @@ interface Props {
 const initialState: UserMutation = {
   email: '',
   displayName: '',
-  role: '',
+  role: 'user',
   password: '',
 };
 
@@ -116,13 +116,7 @@ const UserForm: React.FC<Props> = ({ onSubmit, existingUser = initialState, isEd
           </Grid>
         </Grid>
         <Button
-          disabled={
-            state.email === '' ||
-            state.displayName === '' ||
-            state.role === '' ||
-            isLoading ||
-            (!isEdit && state.password === '')
-          }
+          disabled={state.email === '' || state.displayName === '' || isLoading || (!isEdit && state.password === '')}
           type="submit"
           fullWidth
           variant="contained"
