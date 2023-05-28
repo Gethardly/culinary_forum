@@ -6,6 +6,21 @@ import User from '../models/User';
 
 const recipesRouter = express.Router();
 
+recipesRouter.get('/', async (req, res, next) => {
+  try {
+    const user = req.query.user;
+    if (!user) {
+      const recipes = await Recipe.find().populate('owner');
+      return res.send(recipes);
+    }
+
+    const userRecipes = await Recipe.find({ owner: user });
+    return res.send(userRecipes);
+  } catch (e) {
+    return next(e);
+  }
+});
+
 recipesRouter.post('/', auth, imagesUpload.array('photoGallery', 10), async (req, res, next) => {
   try {
     const user = (req as RequestWithUser).user;
