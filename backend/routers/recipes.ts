@@ -54,8 +54,8 @@ recipesRouter.delete('/:id', auth, async (req, res, next) => {
       return res.status(403).send({ error: "You're not the owner of this recipe" });
     }
     const deletedRecipe = await Recipe.deleteOne({ _id: req.params.id });
-    await User.updateOne({ _id: user.id }, { $pull: { recipes: recipe.id } });
-    return res.send(deletedRecipe);
+    const updatedUserRecipes = await User.updateOne({ _id: recipe.owner }, { $pull: { recipes: req.params.id } });
+    return res.send({ deletedRecipe, updatedUserRecipes });
   } catch (e) {
     return next(e);
   }
