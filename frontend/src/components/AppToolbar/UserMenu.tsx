@@ -8,7 +8,7 @@ import { alpha, styled } from '@mui/material/styles';
 import LogoutIcon from '@mui/icons-material/Logout';
 import GroupIcon from '@mui/icons-material/Groups';
 import CottageIcon from '@mui/icons-material/Cottage';
-import { getEditingUser, getUsersList, logout, updateUser } from '../../features/users/usersThunks';
+import { getEditingUser, getOneUser, getUsersList, logout, updateUser } from '../../features/users/usersThunks';
 import ModalBody from '../ModalBody';
 import UserForm from '../../features/users/components/UserForm';
 import {
@@ -23,6 +23,9 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import { apiURL } from '../../constants';
 import { selectRecipesList } from '../../features/recipes/recipesSlice';
 import { fetchRecipes } from '../../features/recipes/recipesThunks';
+import PersonPinIcon from '@mui/icons-material/PersonPin';
+import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 
 const MenuUserBox = styled(Box)(
   ({ theme }) => `
@@ -78,6 +81,8 @@ interface Props {
   user: User;
 }
 
+let dividerKey = 1;
+
 const UserMenu: React.FC<Props> = ({ user }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -97,7 +102,8 @@ const UserMenu: React.FC<Props> = ({ user }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const classes = useStyles();
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+  const handleClick = async (event: React.MouseEvent<HTMLElement>) => {
+    await dispatch(getOneUser(user._id));
     setAnchorEl(event.currentTarget);
   };
 
@@ -129,24 +135,22 @@ const UserMenu: React.FC<Props> = ({ user }) => {
   useEffect(() => {
     dispatch(fetchRecipes());
   }, [dispatch]);
-
   return (
     <>
       <MenuUserBox sx={{ minWidth: 210 }} display="flex" alignItems="center">
         <Search>
           <Autocomplete
-            disablePortal
+            sx={{ width: 300 }}
+            className={classes.autocomplete}
             onChange={(event, newValue: LinkOption | null) => {
               if (newValue?.id !== undefined) {
-                navigate('recipes/' + newValue.id);
+                navigate('recipe/' + newValue.id);
               }
             }}
-            className={classes.autocomplete}
-            options={optionsList}
-            sx={{ width: 300 }}
-            renderInput={(params) => <TextField {...params} label="Search recipes..." variant="outlined" />}
             noOptionsText="Нет совпадений"
-          ></Autocomplete>
+            options={optionsList}
+            renderInput={(params) => <TextField {...params} label="Search recipes..." variant="outlined" />}
+          />
         </Search>
         <Button onClick={handleClick}>
           <Avatar variant="rounded" alt={user.displayName} src={user.avatar ? avatarPic : ''} />
@@ -168,7 +172,7 @@ const UserMenu: React.FC<Props> = ({ user }) => {
             <GroupIcon sx={{ mr: 1 }} />
             Управление пользователями
           </MenuItem>,
-          <Divider key="user-divider" />,
+          <Divider key={dividerKey} />,
         ]}
         {user && [
           <MenuItem
@@ -181,14 +185,41 @@ const UserMenu: React.FC<Props> = ({ user }) => {
             <CottageIcon sx={{ mr: 1 }} />
             Главная страница
           </MenuItem>,
-          <Divider key="user-divider" />,
+          <Divider key={dividerKey++} />,
         ]}
         <MenuItem onClick={openDialog}>
           <AccountBoxIcon sx={{ mr: 1 }} />
           Редактировать профиль
         </MenuItem>
-        <Divider key="user-divider" />
-        <MenuItem>Подписчики {user.subscribers.length}</MenuItem>
+        <Divider key={dividerKey++} />
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            navigate('/my_recipes/' + user._id);
+          }}
+        >
+          <LibraryBooksIcon sx={{ mr: 1 }} />
+          Мои рецепты
+          <Box sx={{ ml: 'auto' }} component="span">
+            {user.recipes.length}
+          </Box>
+        </MenuItem>
+        <Divider key={dividerKey++} />
+        <MenuItem>
+          <SubscriptionsIcon sx={{ mr: 1 }} />
+          Подписчики
+          <Box sx={{ ml: 'auto' }} component="span">
+            {user.subscribers.length}
+          </Box>
+        </MenuItem>
+        <MenuItem>
+          <PersonPinIcon sx={{ mr: 1 }} />
+          Подписки
+          <Box sx={{ ml: 'auto' }} component="span">
+            {user.subscriptions.length}
+          </Box>
+        </MenuItem>
+        <Divider key={dividerKey++} />
         <MenuItem
           sx={{ justifyContent: 'center' }}
           onClick={() => {

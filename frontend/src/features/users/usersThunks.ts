@@ -52,19 +52,32 @@ export const logout = createAsyncThunk<void, void, { state: RootState }>('users/
 type RequestParams = { page: number; perPage: number } | undefined;
 
 export const getUsersList = createAsyncThunk<UsersListResponse, RequestParams>('users/getAll', async (params) => {
-  let queryString = '';
-  if (params) {
-    queryString = `?page=${params.page}&perPage=${params.perPage}`;
+  try {
+    let queryString = '';
+    if (params) {
+      queryString = `?page=${params.page}&perPage=${params.perPage}`;
+    }
+    const response = await axiosApi.get<UsersListResponse>(`/users${queryString}`);
+    return response.data;
+  } catch (e) {
+    throw new Error('getUserList function: Something went wrong!');
   }
-  const response = await axiosApi.get<UsersListResponse>(`/users${queryString}`);
-  return response.data;
 });
 
-export const getEditingUser = createAsyncThunk<UserMutation, string>('users/getOne', async (id: string) => {
+export const getEditingUser = createAsyncThunk<UserMutation, string>('users/getOneEdit', async (id: string) => {
   try {
     const response = await axiosApi.get<User>('/users/' + id);
     const { email, displayName, role } = response.data;
     return { email, displayName, role, password: '' };
+  } catch (e) {
+    throw new Error('Not found!');
+  }
+});
+
+export const getOneUser = createAsyncThunk<User, string>('users/getOne', async (id: string) => {
+  try {
+    const response = await axiosApi.get<User>('/users/' + id);
+    return response.data;
   } catch (e) {
     throw new Error('Not found!');
   }
