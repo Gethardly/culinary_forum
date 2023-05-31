@@ -90,21 +90,21 @@ const UserMenu: React.FC<Props> = ({ user }) => {
   const editLoading = useAppSelector(selectEditOneUserLoading);
   const usersListData = useAppSelector(selectUsersListData);
   const recipesList = useAppSelector(selectRecipesList);
+  const mainUser = useAppSelector(selectUser);
+  const error = useAppSelector(selectEditingError);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const optionsList: LinkOption[] = recipesList.map((recipe) => {
     return {
       id: recipe._id,
       label: recipe.title,
     };
   });
-  const mainUser = useAppSelector(selectUser);
-  const error = useAppSelector(selectEditingError);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const classes = useStyles();
 
   const handleClick = async (event: React.MouseEvent<HTMLElement>) => {
-    await dispatch(getOneUser(user._id));
     setAnchorEl(event.currentTarget);
+    await dispatch(getOneUser(user._id));
   };
 
   const avatarPic = apiURL + '/images/avatars/' + user.avatar;
