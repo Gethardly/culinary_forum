@@ -9,7 +9,7 @@ export const fetchRecipes = createAsyncThunk<IRecipe[], string | undefined>('cit
       const response = await axiosApi.get<IRecipe[]>('/recipes');
       return response.data;
     }
-    const response = await axiosApi.get<IRecipe[]>('/recipes/' + userId);
+    const response = await axiosApi.get<IRecipe[]>('/recipes?user=' + userId);
     return response.data;
   } catch (e) {
     throw new Error('fetchRecipes: Something went wrong');
@@ -29,8 +29,8 @@ export const createRecipe = createAsyncThunk<IRecipe, IRecipeMutation, { rejectV
         formData.append(`ingredients[${index}]`, ing);
       });
 
-      newRecipe.photoGallery.forEach((photo, index) => {
-        formData.append(`photoGallery[${index}]`, photo);
+      newRecipe.photoGallery.forEach((photo: File) => {
+        formData.append(`photoGallery`, photo);
       });
 
       const response = await axiosApi.post('/recipes', formData);

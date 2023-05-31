@@ -80,6 +80,6 @@ export interface IRecipeMutation {
   title: string;
   ingredients: string[];
   instructions: string;
-  photoGallery: string[];
+  photoGallery: File[];
   owner: string;
 }

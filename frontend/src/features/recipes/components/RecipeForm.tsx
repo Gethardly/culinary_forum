@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { IRecipe, IRecipeMutation, User, ValidationError } from '../../../types';
+import { IRecipeMutation, User, ValidationError } from '../../../types';
 import { Alert, Box, Button, Grid, TextField, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import FilesInput from '../../../components/FileInput/FilesInput';
 
 interface Props {
   user: User;
@@ -25,7 +26,7 @@ const RecipeForm: React.FC<Props> = ({ user, onSubmit, isLoading, error, existin
   initialState.owner = user._id;
   const [state, setState] = useState<IRecipeMutation>(existingRecipe);
 
-  const inputChangeHandler = (field: keyof IRecipe, value: string | string[]) => {
+  const inputChangeHandler = (field: keyof IRecipeMutation, value: string | string[]) => {
     setState((prevState) => ({ ...prevState, [field]: value }));
   };
 
@@ -34,16 +35,16 @@ const RecipeForm: React.FC<Props> = ({ user, onSubmit, isLoading, error, existin
     onSubmit(state);
   };
 
-  const handleAddElement = (fieldName: 'ingredients' | 'photoGallery') => {
+  const handleAddIngredient = () => {
     setState((prevState) => ({
       ...prevState,
-      [fieldName]: [...prevState[fieldName], ''],
+      ingredients: [...prevState.ingredients, ''],
     }));
   };
 
-  const handleRemoveElement = (fieldName: 'ingredients' | 'photoGallery', index: number) => {
+  const handleRemoveIngredient = (index: number) => {
     setState((prevRecipe) => {
-      const updatedInfo = [...prevRecipe[fieldName]];
+      const updatedInfo = [...prevRecipe.ingredients];
       updatedInfo.splice(index, 1);
       return {
         ...prevRecipe,
@@ -55,6 +56,14 @@ const RecipeForm: React.FC<Props> = ({ user, onSubmit, isLoading, error, existin
   const renderInstructionsLength = (text: string) => {
     return text.replace(/\./g, '\n');
   };
+
+  const fileInputChangeHandler = (files: File[]) => {
+    setState((prevState) => ({
+      ...prevState,
+      photoGallery: files,
+    }));
+  };
+
   return (
     <Box
       sx={{
@@ -98,7 +107,7 @@ const RecipeForm: React.FC<Props> = ({ user, onSubmit, isLoading, error, existin
               }}
             />
             {state.ingredients.length < 2 ? (
-              <Button onClick={() => handleAddElement('ingredients')} startIcon={<AddIcon />}>
+              <Button onClick={() => handleAddIngredient()} startIcon={<AddIcon />}>
                 Add ingredients
               </Button>
             ) : (
@@ -122,10 +131,10 @@ const RecipeForm: React.FC<Props> = ({ user, onSubmit, isLoading, error, existin
                     ]);
                   }}
                 />
-                <Button sx={{ ml: 2 }} onClick={() => handleRemoveElement('ingredients', index)}>
+                <Button sx={{ ml: 2 }} onClick={() => handleRemoveIngredient(index)}>
                   <DeleteIcon />
                 </Button>
-                <Button onClick={() => handleAddElement('ingredients')}>
+                <Button onClick={() => handleAddIngredient()}>
                   <AddIcon />
                 </Button>
               </Grid>
@@ -145,6 +154,9 @@ const RecipeForm: React.FC<Props> = ({ user, onSubmit, isLoading, error, existin
               value={renderInstructionsLength(state.instructions)}
               onChange={(e) => inputChangeHandler('instructions', e.target.value)}
             />
+          </Grid>
+          <Grid item xs={12}>
+            <FilesInput onChange={fileInputChangeHandler} btnName="Select photos" />
           </Grid>
         </Grid>
         <Button
