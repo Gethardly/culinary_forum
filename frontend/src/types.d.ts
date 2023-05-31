@@ -4,7 +4,7 @@ export interface User {
   displayName: string;
   token: string;
   role: string;
-  avatar: string;
+  avatar: string | null;
   subscribers: string[];
   subscriptions: string[];
   recipes: string[];
@@ -38,6 +38,7 @@ export interface UserMutation {
   password: string;
   role: string;
   displayName: string;
+  avatar: string | null;
 }
 
 export interface IRole {
@@ -73,4 +74,12 @@ export interface IRecipe {
   instructions: string;
   photoGallery: string[];
   owner: User;
+}
+
+export interface IRecipeMutation {
+  title: string;
+  ingredients: string[];
+  instructions: string;
+  photoGallery: string[];
+  owner: string;
 }

@@ -5,6 +5,7 @@ import { UserMutation, ValidationError } from '../../../types';
 import { ROLES } from '../../../constants';
 import { useAppSelector } from '../../../app/hooks';
 import { selectUser } from '../usersSlice';
+import FileInput from '../../../components/FileInput/FileInput';
 
 interface Props {
   onSubmit: (user: UserMutation) => void;
@@ -19,6 +20,7 @@ const initialState: UserMutation = {
   displayName: '',
   role: 'user',
   password: '',
+  avatar: null,
 };
 
 const UserForm: React.FC<Props> = ({ onSubmit, existingUser = initialState, isEdit, isLoading, error }) => {
@@ -33,6 +35,15 @@ const UserForm: React.FC<Props> = ({ onSubmit, existingUser = initialState, isEd
   const submitFormHandler = async (event: React.FormEvent) => {
     event.preventDefault();
     onSubmit(state);
+  };
+
+  const fileInputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, files } = e.target;
+
+    setState((prevState) => ({
+      ...prevState,
+      [name]: files && files[0] ? files[0] : null,
+    }));
   };
 
   return (
@@ -114,6 +125,9 @@ const UserForm: React.FC<Props> = ({ onSubmit, existingUser = initialState, isEd
               onChange={inputChangeHandler}
             />
           </Grid>
+        </Grid>
+        <Grid item xs>
+          <FileInput onChange={fileInputChangeHandler} name="avatar" label="avatar" />
         </Grid>
         <Button
           disabled={state.email === '' || state.displayName === '' || isLoading || (!isEdit && state.password === '')}

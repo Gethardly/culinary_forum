@@ -27,14 +27,16 @@ const RecipeItem: React.FC<Props> = ({ id, title, ingredients, instructions, pho
   }
 
   return (
-    <Grid item xs={12} sm={6} md={4} lg={3} component={Link} to={'/product/' + id} style={{ textDecoration: 'none' }}>
+    <Grid item xs={12} sm={6} md={2} lg={3} component={Link} to={'/product/' + id} style={{ textDecoration: 'none' }}>
       <Card>
         <ImageCardMedia image={cardImage} title={title} />
-        <CardHeader title={title} />
+        <CardHeader title={owner.displayName} />
         <CardContent>
-          <Typography variant="h2">{owner.displayName}</Typography>
+          <Typography variant="h5">{title}</Typography>
           <strong>{ingredients.length}</strong>
-          <strong>{instructions}</strong>
+          <Typography component="p">
+            {instructions.length > 200 ? instructions.slice(0, 200) + '...' : instructions}
+          </Typography>
         </CardContent>
       </Card>
     </Grid>

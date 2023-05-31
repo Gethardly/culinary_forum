@@ -4,7 +4,6 @@ import {
   DeletedUserResponse,
   GlobalError,
   LoginMutation,
-  RegisterResponse,
   User,
   UserMutation,
   UserResponse,
@@ -34,7 +33,20 @@ export const createUser = createAsyncThunk<void, UserMutation, { rejectValue: Va
   'users/create',
   async (registerMutation, { rejectWithValue }) => {
     try {
-      await axiosApi.post<RegisterResponse>('/users', registerMutation);
+      const formData = new FormData();
+
+      const keys = Object.keys(registerMutation) as (keyof UserMutation)[];
+
+      keys.forEach((key) => {
+        const value = registerMutation[key];
+
+        if (value !== null) {
+          formData.append(key, value);
+        }
+      });
+
+      const response = await axiosApi.post('/users', formData);
+      return response.data.user;
     } catch (e) {
       if (isAxiosError(e) && e.response && e.response.status === 400) {
         return rejectWithValue(e.response.data as ValidationError);
@@ -67,8 +79,8 @@ export const getUsersList = createAsyncThunk<UsersListResponse, RequestParams>('
 export const getEditingUser = createAsyncThunk<UserMutation, string>('users/getOneEdit', async (id: string) => {
   try {
     const response = await axiosApi.get<User>('/users/' + id);
-    const { email, displayName, role } = response.data;
-    return { email, displayName, role, password: '' };
+    const { email, displayName, role, avatar } = response.data;
+    return { email, displayName, role, avatar, password: '' };
   } catch (e) {
     throw new Error('Not found!');
   }
