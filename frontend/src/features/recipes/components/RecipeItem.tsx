@@ -1,7 +1,8 @@
-import { Card, CardContent, CardHeader, CardMedia, Grid, styled, Typography } from '@mui/material';
+import { Button, Card, CardContent, CardHeader, CardMedia, Grid, styled, Typography } from '@mui/material';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { apiURL } from '../../../constants';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import noImageAvailable from '../../../assets/images/noImage.png';
 import { User } from '../../../types';
 
@@ -27,15 +28,27 @@ const RecipeItem: React.FC<Props> = ({ id, title, ingredients, instructions, pho
   }
 
   return (
-    <Grid item xs={12} sm={6} md={2} lg={3} component={Link} to={'/product/' + id} style={{ textDecoration: 'none' }}>
-      <Card>
+    <Grid item xs={12} sm={6} md={2} lg={3} component={Link} to={'/recipe/' + id} style={{ textDecoration: 'none' }}>
+      <Card sx={{ height: '100%' }}>
         <ImageCardMedia image={cardImage} title={title} />
-        <CardHeader title={owner.displayName} />
+        <CardHeader
+          sx={{
+            ':hover': {
+              background: 'lightgrey',
+            },
+          }}
+          title={owner.displayName}
+          action={
+            <Button>
+              <PersonAddIcon />
+            </Button>
+          }
+        />
         <CardContent>
           <Typography variant="h5">{title}</Typography>
           <strong>{ingredients.length}</strong>
           <Typography component="p">
-            {instructions.length > 200 ? instructions.slice(0, 200) + '...' : instructions}
+            {instructions.length > 50 ? instructions.slice(0, 50) + '...' : instructions}
           </Typography>
         </CardContent>
       </Card>
