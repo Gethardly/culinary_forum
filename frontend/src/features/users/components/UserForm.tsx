@@ -125,9 +125,9 @@ const UserForm: React.FC<Props> = ({ onSubmit, existingUser = initialState, isEd
               onChange={inputChangeHandler}
             />
           </Grid>
-        </Grid>
-        <Grid item xs>
-          <FileInput onChange={fileInputChangeHandler} name="avatar" label="avatar" />
+          <Grid item xs={12}>
+            <FileInput onChange={fileInputChangeHandler} name="avatar" label="avatar" />
+          </Grid>
         </Grid>
         <Button
           disabled={state.email === '' || state.displayName === '' || isLoading || (!isEdit && state.password === '')}
