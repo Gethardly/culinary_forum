@@ -43,3 +43,12 @@ export const createRecipe = createAsyncThunk<IRecipe, IRecipeMutation, { rejectV
     }
   },
 );
+
+export const getOneRecipe = createAsyncThunk<IRecipe, string>('recipes/getOne', async (recipeId: string) => {
+  try {
+    const response = await axiosApi.get('/recipes/' + recipeId);
+    return response.data;
+  } catch (e) {
+    throw new Error('Something went wrong with getOneRecipe');
+  }
+});

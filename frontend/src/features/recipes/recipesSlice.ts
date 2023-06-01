@@ -1,11 +1,13 @@
 import { IRecipe, ValidationError } from '../../types';
 import { createSlice } from '@reduxjs/toolkit';
-import { createRecipe, fetchRecipes } from './recipesThunks';
+import { createRecipe, fetchRecipes, getOneRecipe } from './recipesThunks';
 import { RootState } from '../../app/store';
 
 interface RecipesState {
   recipeList: IRecipe[];
   getAllRecipesLoading: boolean;
+  oneRecipe: IRecipe | null;
+  oneRecipeLoading: boolean;
   createLoading: boolean;
   createError: ValidationError | null;
 }
@@ -13,6 +15,8 @@ interface RecipesState {
 const initialState: RecipesState = {
   recipeList: [],
   getAllRecipesLoading: false,
+  oneRecipe: null,
+  oneRecipeLoading: false,
   createLoading: false,
   createError: null,
 };
@@ -43,10 +47,22 @@ export const recipesSlice = createSlice({
       state.createLoading = false;
       state.createError = error || null;
     });
+
+    builder.addCase(getOneRecipe.pending, (state) => {
+      state.oneRecipeLoading = true;
+    });
+    builder.addCase(getOneRecipe.fulfilled, (state, { payload: recipe }) => {
+      state.oneRecipeLoading = false;
+      state.oneRecipe = recipe;
+    });
+    builder.addCase(getOneRecipe.rejected, (state) => {
+      state.oneRecipeLoading = false;
+    });
   },
 });
 
 export const recipeReducer = recipesSlice.reducer;
 export const selectRecipesList = (state: RootState) => state.recipe.recipeList;
+export const selectOneRecipe = (state: RootState) => state.recipe.oneRecipe;
 export const selectCreateRecipeLoading = (state: RootState) => state.recipe.createLoading;
 export const selectCreateRecipeError = (state: RootState) => state.recipe.createError;

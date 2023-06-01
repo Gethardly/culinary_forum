@@ -48,9 +48,9 @@ const Recipes = () => {
           ? recipes.map((recipe) => (
               <RecipeItem
                 key={recipe._id}
+                id={recipe._id}
                 title={recipe.title}
                 photoGallery={recipe.photoGallery}
-                ingredients={recipe.ingredients}
                 instructions={recipe.instructions}
                 owner={recipe.owner}
                 currentUser={user}
