@@ -26,6 +26,7 @@ import { fetchRecipes } from '../../features/recipes/recipesThunks';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
 import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import SimpleDialog from '../Dialogs/SimpleDialog/SimpleDialog';
 
 const MenuUserBox = styled(Box)(
   ({ theme }) => `
@@ -86,28 +87,28 @@ let dividerKey = 1;
 const UserMenu: React.FC<Props> = ({ user }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const mainUser = useAppSelector(selectUser);
   const editingUser = useAppSelector(selectOneEditingUser);
   const editLoading = useAppSelector(selectEditOneUserLoading);
   const usersListData = useAppSelector(selectUsersListData);
   const recipesList = useAppSelector(selectRecipesList);
-  const mainUser = useAppSelector(selectUser);
   const error = useAppSelector(selectEditingError);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [followersDialogOpen, setFollowersDialogOpen] = useState(false);
+  const [clickType, setClickType] = useState<'Подписки' | 'Подписчики'>('Подписки');
+  const classes = useStyles();
+  const avatarPic = apiURL + '/images/avatars/' + user.avatar;
   const optionsList: LinkOption[] = recipesList.map((recipe) => {
     return {
       id: recipe._id,
       label: recipe.title,
     };
   });
-  const classes = useStyles();
-
   const handleClick = async (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
     await dispatch(getOneUser());
   };
-
-  const avatarPic = apiURL + '/images/avatars/' + user.avatar;
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -130,6 +131,15 @@ const UserMenu: React.FC<Props> = ({ user }) => {
     } catch (error) {
       throw new Error(`Произошла ошибка: ${error}`);
     }
+  };
+
+  const handleFollowersOpen = (linkType: 'Подписки' | 'Подписчики') => {
+    setClickType(linkType);
+    setFollowersDialogOpen(true);
+  };
+
+  const handleFollowersClose = () => {
+    setFollowersDialogOpen(false);
   };
 
   useEffect(() => {
@@ -205,14 +215,14 @@ const UserMenu: React.FC<Props> = ({ user }) => {
           </Box>
         </MenuItem>
         <Divider key={dividerKey++} />
-        <MenuItem>
+        <MenuItem onClick={() => handleFollowersOpen('Подписчики')}>
           <SubscriptionsIcon sx={{ mr: 1 }} />
           Подписчики
           <Box sx={{ ml: 'auto' }} component="span">
             {user.subscribers.length}
           </Box>
         </MenuItem>
-        <MenuItem>
+        <MenuItem onClick={() => handleFollowersOpen('Подписки')}>
           <PersonPinIcon sx={{ mr: 1 }} />
           Подписки
           <Box sx={{ ml: 'auto' }} component="span">
@@ -236,6 +246,9 @@ const UserMenu: React.FC<Props> = ({ user }) => {
         <ModalBody isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
           <UserForm error={error} onSubmit={onFormSubmit} existingUser={editingUser} isEdit isLoading={editLoading} />
         </ModalBody>
+      )}
+      {mainUser && (
+        <SimpleDialog user={mainUser} type={clickType} open={followersDialogOpen} onClose={handleFollowersClose} />
       )}
     </>
   );

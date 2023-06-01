@@ -5,8 +5,8 @@ export interface User {
   token: string;
   role: string;
   avatar: string | null;
-  subscribers: string[];
-  subscriptions: string[];
+  subscribers: User[];
+  subscriptions: User[];
   recipes: string[];
 }
 
