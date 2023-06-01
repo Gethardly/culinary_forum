@@ -14,8 +14,18 @@ recipesRouter.get('/', async (req, res, next) => {
       return res.send(recipes);
     }
 
-    const userRecipes = await Recipe.find({ owner: user });
+    const userRecipes = await Recipe.find({ owner: user }).populate('owner');
     return res.send(userRecipes);
+  } catch (e) {
+    return next(e);
+  }
+});
+
+recipesRouter.get('/:id', async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const recipe = await Recipe.findOne({ _id: id });
+    return res.send(recipe);
   } catch (e) {
     return next(e);
   }

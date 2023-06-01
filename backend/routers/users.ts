@@ -90,10 +90,10 @@ usersRouter.get('/list', auth, permit('admin'), async (req, res, next) => {
   }
 });
 
-usersRouter.get('/:id', auth, async (req, res, next) => {
+usersRouter.get('/', auth, async (req, res, next) => {
   try {
-    const userId = req.params.id;
-    const user = await User.findOne({ _id: userId });
+    const id = (req as RequestWithUser).user.id;
+    const user = await User.findOne({ _id: id }).populate('subscribers').populate('subscriptions');
     return res.send(user);
   } catch (e) {
     return next(e);
