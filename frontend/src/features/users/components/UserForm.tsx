@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Alert, Avatar, Box, Button, Grid, MenuItem, TextField, Typography } from '@mui/material';
+import { Alert, Avatar, Box, Button, Grid, Link, MenuItem, TextField, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { UserMutation, ValidationError } from '../../../types';
 import { ROLES } from '../../../constants';
@@ -138,6 +139,13 @@ const UserForm: React.FC<Props> = ({ onSubmit, existingUser = initialState, isEd
         >
           {isEdit ? 'Редактировать' : 'Зарегистрироваться'}
         </Button>
+        <Grid container justifyContent="flex-end">
+          <Grid item>
+            <Link component={RouterLink} to="/login" variant="body2">
+              Уже есть аккаунт? Войти
+            </Link>
+          </Grid>
+        </Grid>
       </Box>
     </Box>
   );

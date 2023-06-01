@@ -144,7 +144,6 @@ const usersSlice = createSlice({
 
     builder.addCase(getOneUser.fulfilled, (state, { payload: user }) => {
       state.user = user;
-      console.log(user);
     });
   },
 });

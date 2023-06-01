@@ -69,16 +69,16 @@ export const getUsersList = createAsyncThunk<UsersListResponse, RequestParams>('
     if (params) {
       queryString = `?page=${params.page}&perPage=${params.perPage}`;
     }
-    const response = await axiosApi.get<UsersListResponse>(`/users${queryString}`);
+    const response = await axiosApi.get<UsersListResponse>(`/users/list${queryString}`);
     return response.data;
   } catch (e) {
     throw new Error('getUserList function: Something went wrong!');
   }
 });
 
-export const getEditingUser = createAsyncThunk<UserMutation, string>('users/getOneEdit', async (id: string) => {
+export const getEditingUser = createAsyncThunk<UserMutation, string>('users/getOneEdit', async (userId: string) => {
   try {
-    const response = await axiosApi.get<User>('/users/' + id);
+    const response = await axiosApi.get<User>('/users/' + userId);
     const { email, displayName, role, avatar } = response.data;
     return { email, displayName, role, avatar, password: '' };
   } catch (e) {
@@ -86,9 +86,9 @@ export const getEditingUser = createAsyncThunk<UserMutation, string>('users/getO
   }
 });
 
-export const getOneUser = createAsyncThunk<User, string>('users/getOne', async (id: string) => {
+export const getOneUser = createAsyncThunk<User>('users/getOne', async () => {
   try {
-    const response = await axiosApi.get<User>('/users/' + id);
+    const response = await axiosApi.get<User>('/users');
     return response.data;
   } catch (e) {
     throw new Error('Not found!');
@@ -106,8 +106,18 @@ export const updateUser = createAsyncThunk<
   { rejectValue: ValidationError; dispatch: AppDispatch; state: RootState }
 >('users/editOne', async (params, { rejectWithValue, dispatch, getState }) => {
   try {
+    const formData = new FormData();
+    const keys = Object.keys(params.user) as (keyof UserMutation)[];
     const currentUser = getState().users.user;
-    const response = await axiosApi.put('users/' + params.id, params.user);
+
+    keys.forEach((key) => {
+      const value = params.user[key];
+      if (value !== null) {
+        formData.append(key, value);
+      }
+    });
+
+    const response = await axiosApi.put('users/' + params.id, formData);
     if (currentUser && currentUser._id === params.id) {
       dispatch(setUser(response.data));
     }
@@ -122,4 +132,12 @@ export const updateUser = createAsyncThunk<
 export const deleteUser = createAsyncThunk<DeletedUserResponse, string>('users/deleteOne', async (userId) => {
   const response = await axiosApi.delete('/users/' + userId);
   return response.data;
+});
+
+export const subscribeToUser = createAsyncThunk<void, string>('users/subscribe', async (id: string) => {
+  try {
+    await axiosApi.post('users/subscribe/' + id);
+  } catch (e) {
+    throw new Error('Something went wrong with subscribe!');
+  }
 });

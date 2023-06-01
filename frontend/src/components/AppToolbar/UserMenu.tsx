@@ -104,7 +104,7 @@ const UserMenu: React.FC<Props> = ({ user }) => {
 
   const handleClick = async (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
-    await dispatch(getOneUser(user._id));
+    await dispatch(getOneUser());
   };
 
   const avatarPic = apiURL + '/images/avatars/' + user.avatar;

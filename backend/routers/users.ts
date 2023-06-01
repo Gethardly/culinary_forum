@@ -66,7 +66,7 @@ usersRouter.delete('/:id', auth, permit('admin'), async (req, res, next) => {
   }
 });
 
-usersRouter.get('/', auth, permit('admin'), async (req, res, next) => {
+usersRouter.get('/list', auth, permit('admin'), async (req, res, next) => {
   let page = parseInt(req.query.page as string);
   let perPage = parseInt(req.query.perPage as string);
 
@@ -92,18 +92,19 @@ usersRouter.get('/', auth, permit('admin'), async (req, res, next) => {
 
 usersRouter.get('/:id', auth, async (req, res, next) => {
   try {
-    const user = await User.findOne({ _id: req.params.id });
+    const userId = req.params.id;
+    const user = await User.findOne({ _id: userId });
     return res.send(user);
   } catch (e) {
     return next(e);
   }
 });
 
-usersRouter.put('/:id', auth, async (req, res, next) => {
+usersRouter.put('/:id', imagesUpload.single('avatar'), auth, async (req, res, next) => {
   try {
     const id = req.params.id as string;
-    const { email, displayName, password, role } = req.body;
     const user = await User.findById(id);
+    const { email, displayName, password, role } = req.body;
 
     if (!user) {
       return res.status(404).send({ error: 'No user found!' });
@@ -121,6 +122,7 @@ usersRouter.put('/:id', auth, async (req, res, next) => {
     if (role && role !== user.role) {
       user.role = role;
     }
+    user.avatar = req.file ? req.file.filename : null;
 
     const result = await user.save();
 

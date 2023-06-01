@@ -23,7 +23,7 @@ const AppToolbar = () => {
       <Toolbar>
         <Grid container sx={{ alignItems: 'center' }}>
           <Typography variant="h5" component="div" sx={{ flexGrow: 1, alignItems: 'center' }}>
-            <StyledLink to="/">Culinary forum</StyledLink>
+            <StyledLink to="/">Кулинарный форум</StyledLink>
           </Typography>
           <Grid>{user ? <UserMenu user={user} /> : <AnonymousMenu />}</Grid>
         </Grid>
