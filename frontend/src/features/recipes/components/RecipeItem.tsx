@@ -1,8 +1,7 @@
 import { Button, Card, CardContent, CardHeader, CardMedia, Grid, styled, Typography } from '@mui/material';
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { apiURL } from '../../../constants';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { PersonAdd as PersonAddIcon, PersonAddDisabled as PersonAddDisabledIcon } from '@mui/icons-material/';
 import noImageAvailable from '../../../assets/images/noImage.png';
 import { User } from '../../../types';
 
@@ -12,15 +11,24 @@ const ImageCardMedia = styled(CardMedia)({
 });
 
 interface Props {
-  id: string;
   title: string;
   ingredients: string[];
   instructions: string;
   photoGallery: string[];
+  subscribe: (ownerId: string) => void;
   owner: User;
+  currentUser: User | null;
 }
 
-const RecipeItem: React.FC<Props> = ({ id, title, ingredients, instructions, photoGallery, owner }) => {
+const RecipeItem: React.FC<Props> = ({
+  title,
+  ingredients,
+  instructions,
+  photoGallery,
+  owner,
+  currentUser,
+  subscribe,
+}) => {
   let cardImage = noImageAvailable;
 
   if (photoGallery.length !== 0) {
@@ -28,7 +36,7 @@ const RecipeItem: React.FC<Props> = ({ id, title, ingredients, instructions, pho
   }
 
   return (
-    <Grid item xs={12} sm={6} md={2} lg={3} component={Link} to={'/recipe/' + id} style={{ textDecoration: 'none' }}>
+    <Grid item xs={12} sm={6} md={2} lg={3}>
       <Card sx={{ height: '100%' }}>
         <ImageCardMedia image={cardImage} title={title} />
         <CardHeader
@@ -39,9 +47,16 @@ const RecipeItem: React.FC<Props> = ({ id, title, ingredients, instructions, pho
           }}
           title={owner.displayName}
           action={
-            <Button>
-              <PersonAddIcon />
-            </Button>
+            currentUser &&
+            currentUser._id !== owner._id && (
+              <Button onClick={() => subscribe(owner._id)}>
+                {currentUser.subscriptions.find((subscription) => subscription === owner._id) ? (
+                  <PersonAddDisabledIcon />
+                ) : (
+                  <PersonAddIcon />
+                )}
+              </Button>
+            )
           }
         />
         <CardContent>

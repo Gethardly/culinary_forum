@@ -19,7 +19,7 @@ const initialState: IRecipeMutation = {
   title: '',
   instructions: '',
   photoGallery: [],
-  ingredients: [],
+  ingredients: [''],
 };
 
 const RecipeForm: React.FC<Props> = ({ user, onSubmit, isLoading, error, existingRecipe = initialState, isEdit }) => {

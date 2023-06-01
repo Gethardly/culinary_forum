@@ -6,6 +6,7 @@ import { Button, Grid } from '@mui/material';
 import RecipeItem from './components/RecipeItem';
 import { useNavigate, useOutlet, useParams } from 'react-router-dom';
 import { selectUser } from '../users/usersSlice';
+import { getOneUser, subscribeToUser } from '../users/usersThunks';
 
 const Recipes = () => {
   const user = useAppSelector(selectUser);
@@ -14,6 +15,11 @@ const Recipes = () => {
   const { id } = useParams();
   const dispatch = useAppDispatch();
   const recipes = useAppSelector(selectRecipesList);
+
+  const subscribe = async (ownerId: string) => {
+    await dispatch(subscribeToUser(ownerId));
+    await dispatch(getOneUser());
+  };
 
   useEffect(() => {
     if (!id) {
@@ -43,11 +49,12 @@ const Recipes = () => {
               <RecipeItem
                 key={recipe._id}
                 title={recipe.title}
-                id={recipe._id}
                 photoGallery={recipe.photoGallery}
                 ingredients={recipe.ingredients}
                 instructions={recipe.instructions}
                 owner={recipe.owner}
+                currentUser={user}
+                subscribe={subscribe}
               />
             ))
           : outlet}
