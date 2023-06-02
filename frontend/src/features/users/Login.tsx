@@ -16,10 +16,11 @@ import {
   Typography,
 } from '@mui/material';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import { login } from './usersThunks';
+import { googleLogin, login } from './usersThunks';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { resetLoginError, selectLoginError, selectLoginLoading } from './usersSlice';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const dispatch = useAppDispatch();
@@ -48,6 +49,11 @@ const Login = () => {
     navigate('/');
   };
 
+  const googleLoginHandler = async (credentials: string) => {
+    await dispatch(googleLogin(credentials)).unwrap();
+    navigate('/');
+  };
+
   useEffect(() => {
     return () => {
       dispatch(resetLoginError());
@@ -70,6 +76,18 @@ const Login = () => {
         <Typography component="h1" variant="h5">
           Авторизация
         </Typography>
+        <Box sx={{ pt: 2 }}>
+          <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              if (credentialResponse.credential) {
+                void googleLoginHandler(credentialResponse.credential);
+              }
+            }}
+            onError={() => {
+              console.log('Login failed');
+            }}
+          />
+        </Box>
         {loginError && (
           <Alert severity="error" sx={{ mt: 3, width: '100%' }}>
             {loginError.error}

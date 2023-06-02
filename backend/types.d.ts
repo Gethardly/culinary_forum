@@ -10,6 +10,7 @@ export interface IUser {
   subscriptions: Schema.Types.ObjectId[];
   recipes: Schema.Types.ObjectId[];
   avatar?: string | null;
+  googleId: string;
 }
 
 export interface IRecipe {

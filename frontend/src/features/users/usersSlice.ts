@@ -1,7 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DeletedUserResponse, GlobalError, User, UserMutation, UsersListResponse, ValidationError } from '../../types';
 import { RootState } from '../../app/store';
-import { createUser, deleteUser, updateUser, getEditingUser, getUsersList, login, getOneUser } from './usersThunks';
+import {
+  createUser,
+  deleteUser,
+  updateUser,
+  getEditingUser,
+  getUsersList,
+  login,
+  getOneUser,
+  googleLogin,
+} from './usersThunks';
 
 interface UsersState {
   user: User | null;
@@ -140,6 +149,19 @@ const usersSlice = createSlice({
     });
     builder.addCase(deleteUser.rejected, (state) => {
       state.deleteOneLoading = false;
+    });
+
+    builder.addCase(googleLogin.pending, (state) => {
+      state.loginLoading = true;
+      state.registerError = null;
+    });
+    builder.addCase(googleLogin.fulfilled, (state, { payload: user }) => {
+      state.loginLoading = false;
+      state.user = user;
+    });
+    builder.addCase(googleLogin.rejected, (state, { payload: error }) => {
+      state.loginLoading = false;
+      state.loginError = error || null;
     });
 
     builder.addCase(getOneUser.fulfilled, (state, { payload: user }) => {
