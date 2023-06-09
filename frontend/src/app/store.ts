@@ -4,6 +4,7 @@ import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE } from 'redux-persist/es/constants';
 import { recipeReducer } from '../features/recipes/recipesSlice';
+import { appBarReducer } from '../components/AppToolbar/AppToolBarSlice';
 
 const usersPersistConfig = {
   key: 'Culinary-forum:users',
@@ -14,6 +15,7 @@ const usersPersistConfig = {
 const rootReducer = combineReducers({
   users: persistReducer(usersPersistConfig, usersReducer),
   recipe: recipeReducer,
+  appBar: appBarReducer,
 });
 
 export const store = configureStore({
