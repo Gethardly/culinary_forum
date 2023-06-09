@@ -26,7 +26,8 @@ import { fetchRecipes } from '../../features/recipes/recipesThunks';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
 import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import SimpleDialog from '../Dialogs/SimpleDialog/SimpleDialog';
+import UserSubsDialog from '../Dialogs/UserSubsDialog/UserSubsDialog';
+import ChatIcon from '@mui/icons-material/Chat';
 
 const MenuUserBox = styled(Box)(
   ({ theme }) => `
@@ -98,7 +99,7 @@ const UserMenu: React.FC<Props> = ({ user }) => {
   const [followersDialogOpen, setFollowersDialogOpen] = useState(false);
   const [clickType, setClickType] = useState<'Подписки' | 'Подписчики'>('Подписки');
   const classes = useStyles();
-  const avatarPic = apiURL + '/images/avatars/' + user.avatar;
+  const avatarPic = user.googleId ? (user.avatar as string) : ((apiURL + '/images/avatars/' + user.avatar) as string);
   const optionsList: LinkOption[] = recipesList.map((recipe) => {
     return {
       id: recipe._id,
@@ -200,6 +201,15 @@ const UserMenu: React.FC<Props> = ({ user }) => {
         <MenuItem onClick={openDialog}>
           <AccountBoxIcon sx={{ mr: 1 }} />
           Редактировать профиль
+        </MenuItem>{' '}
+        <Divider key={dividerKey++} />
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            navigate('/messages');
+          }}
+        >
+          <ChatIcon sx={{ mr: 1 }} /> Чат
         </MenuItem>
         <Divider key={dividerKey++} />
         <MenuItem
@@ -248,7 +258,7 @@ const UserMenu: React.FC<Props> = ({ user }) => {
         </ModalBody>
       )}
       {mainUser && (
-        <SimpleDialog user={mainUser} type={clickType} open={followersDialogOpen} onClose={handleFollowersClose} />
+        <UserSubsDialog user={mainUser} type={clickType} open={followersDialogOpen} onClose={handleFollowersClose} />
       )}
     </>
   );
