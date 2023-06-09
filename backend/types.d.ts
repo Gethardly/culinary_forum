@@ -20,3 +20,15 @@ export interface IRecipe {
   photoGallery: string[];
   owner: Schema.Types.ObjectId;
 }
+
+export interface IMessage {
+  sender: string | Shema.Types.ObjectId;
+  recipient: string | Shema.Types.ObjectId;
+  content: string;
+  createdAt: Date;
+}
+
+export interface IncomingMessage {
+  type: string;
+  payload: IMessage;
+}
