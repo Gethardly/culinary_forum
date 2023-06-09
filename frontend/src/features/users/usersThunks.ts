@@ -78,7 +78,7 @@ export const getUsersList = createAsyncThunk<UsersListResponse, RequestParams>('
 
 export const getEditingUser = createAsyncThunk<UserMutation, string>('users/getOneEdit', async (userId: string) => {
   try {
-    const response = await axiosApi.get<User>('/users/' + userId);
+    const response = await axiosApi.get<User>('/users?user=' + userId);
     const { email, displayName, role, avatar } = response.data;
     return { email, displayName, role, avatar, password: '' };
   } catch (e) {
@@ -142,6 +142,17 @@ export const subscribeToUser = createAsyncThunk<void, string>('users/subscribe',
   }
 });
 
+export const removeSubscriber = createAsyncThunk<void, string>(
+  'users/removeSubscriber',
+  async (subscriberId: string) => {
+    try {
+      await axiosApi.post('users/remove_follower/' + subscriberId);
+    } catch (e) {
+      throw new Error('Something went wrong with remove follower');
+    }
+  },
+);
+
 export const googleLogin = createAsyncThunk<User, string, { rejectValue: GlobalError }>(
   'users/googleLogin',
   async (credential, { rejectWithValue }) => {
@@ -156,3 +167,8 @@ export const googleLogin = createAsyncThunk<User, string, { rejectValue: GlobalE
     }
   },
 );
+
+export const getAllUsersInfo = createAsyncThunk<User[]>('/users/getAll', async () => {
+  const users = await axiosApi.get('/users/all');
+  return users.data;
+});

@@ -10,6 +10,10 @@ import Dialog from '@mui/material/Dialog';
 import PersonIcon from '@mui/icons-material/Person';
 import { blue } from '@mui/material/colors';
 import { User } from '../../../types';
+import { PersonAdd as PersonAddIcon, PersonAddDisabled as PersonAddDisabledIcon } from '@mui/icons-material';
+import { Button, Typography } from '@mui/material';
+import { getOneUser, removeSubscriber, subscribeToUser } from '../../../features/users/usersThunks';
+import { useAppDispatch } from '../../../app/hooks';
 
 export interface SimpleDialogProps {
   user: User;
@@ -18,7 +22,8 @@ export interface SimpleDialogProps {
   type: 'Подписки' | 'Подписчики';
 }
 
-const SimpleDialog: React.FC<SimpleDialogProps> = ({ user, open, onClose, type }) => {
+const UserSubsDialog: React.FC<SimpleDialogProps> = ({ user, open, onClose, type }) => {
+  const dispatch = useAppDispatch();
   let users: User[];
   if (type === 'Подписки') {
     users = user.subscriptions;
@@ -33,12 +38,25 @@ const SimpleDialog: React.FC<SimpleDialogProps> = ({ user, open, onClose, type }
     onClose();
   };
 
+  const handleButtonClick = async (e: React.MouseEvent, sup: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (type === 'Подписки') {
+      await dispatch(subscribeToUser(sup));
+    } else {
+      await dispatch(removeSubscriber(sup));
+    }
+
+    await dispatch(getOneUser());
+  };
+
   return (
     <Dialog onClose={handleClose} open={open}>
       <DialogTitle>{type}</DialogTitle>
-      <List sx={{ pt: 0 }}>
+      <List sx={{ p: 2 }}>
+        {users.length === 0 && <Typography>У вас нет {type === 'Подписки' ? 'подписок' : 'подписчиков'}</Typography>}
         {users.map((user) => (
-          <ListItem key={user._id} disableGutters>
+          <ListItem key={crypto.randomUUID()} disableGutters>
             <ListItemButton onClick={() => handleListItemClick()}>
               <ListItemAvatar>
                 <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
@@ -46,6 +64,13 @@ const SimpleDialog: React.FC<SimpleDialogProps> = ({ user, open, onClose, type }
                 </Avatar>
               </ListItemAvatar>
               <ListItemText primary={user.displayName} />
+              <Button sx={{ ml: 'auto' }} onClick={(e) => handleButtonClick(e, user._id)}>
+                {user.subscriptions?.find((sup) => sup._id !== user._id) ? (
+                  <PersonAddDisabledIcon />
+                ) : (
+                  <PersonAddIcon />
+                )}
+              </Button>
             </ListItemButton>
           </ListItem>
         ))}
@@ -54,4 +79,4 @@ const SimpleDialog: React.FC<SimpleDialogProps> = ({ user, open, onClose, type }
   );
 };
 
-export default SimpleDialog;
+export default UserSubsDialog;

@@ -97,8 +97,11 @@ usersRouter.get('/list', auth, permit('admin'), async (req, res, next) => {
 
 usersRouter.get('/', auth, async (req, res, next) => {
   try {
+    const anotherUser = req.query.user;
     const id = (req as RequestWithUser).user.id;
-    const user = await User.findOne({ _id: id }).populate('subscribers').populate('subscriptions');
+    const user = await User.findOne({ _id: anotherUser ? anotherUser : id })
+      .populate('subscribers')
+      .populate('subscriptions');
     return res.send(user);
   } catch (e) {
     return next(e);
@@ -188,6 +191,24 @@ usersRouter.post('/subscribe/:id', auth, async (req, res, next) => {
   }
 });
 
+usersRouter.post('/remove_follower/:id', auth, async (req, res, next) => {
+  try {
+    const user = (req as RequestWithUser).user;
+    const follower = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(401).send({ error: 'User not found!' });
+    }
+    if (!follower) {
+      return res.status(400).send({ error: 'User not found!' });
+    }
+
+    const updatedUser = await User.updateOne({ _id: user.id }, { $pull: { subscribers: follower._id } });
+    return res.status(200).send({ message: 'Subscriber removed', updatedUser });
+  } catch (e) {
+    return next(e);
+  }
+});
+
 usersRouter.post('/google', async (req, res, next) => {
   try {
     const ticket = await client.verifyIdToken({
@@ -231,6 +252,15 @@ usersRouter.post('/google', async (req, res, next) => {
     }
 
     return res.send({ message: 'Login with Google successful!', user });
+  } catch (e) {
+    return next(e);
+  }
+});
+
+usersRouter.get('/all', auth, async (req, res, next) => {
+  try {
+    const users = await User.find().select('displayName');
+    return res.send(users);
   } catch (e) {
     return next(e);
   }
