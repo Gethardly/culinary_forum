@@ -33,7 +33,6 @@ const RecipeItem: React.FC<Props> = ({ id, title, instructions, photoGallery, ow
     e.stopPropagation();
     subscribe(owner._id);
   };
-  console.log(currentUser?._id, owner._id);
 
   return (
     <Grid item xs={12} sm={6} md={2} lg={3} component={Link} to={'/recipe/' + id} style={{ textDecoration: 'none' }}>

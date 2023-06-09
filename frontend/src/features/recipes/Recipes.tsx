@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectRecipesList } from './recipesSlice';
 import { fetchRecipes } from './recipesThunks';
-import { Button, Grid } from '@mui/material';
+import { Button, Container, Grid } from '@mui/material';
 import RecipeItem from './components/RecipeItem';
 import { useNavigate, useOutlet, useParams } from 'react-router-dom';
 import { selectUser } from '../users/usersSlice';
@@ -10,8 +10,8 @@ import { getOneUser, subscribeToUser } from '../users/usersThunks';
 
 const Recipes = () => {
   const user = useAppSelector(selectUser);
-  const navigate = useNavigate();
   const outlet = useOutlet();
+  const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useAppDispatch();
   const recipes = useAppSelector(selectRecipesList);
@@ -43,22 +43,24 @@ const Recipes = () => {
       ) : (
         ''
       )}
-      <Grid container spacing={2}>
-        {!outlet
-          ? recipes.map((recipe) => (
-              <RecipeItem
-                key={recipe._id}
-                id={recipe._id}
-                title={recipe.title}
-                photoGallery={recipe.photoGallery}
-                instructions={recipe.instructions}
-                owner={recipe.owner}
-                currentUser={user}
-                subscribe={subscribe}
-              />
-            ))
-          : outlet}
-      </Grid>
+      <Container sx={{ py: 8 }}>
+        <Grid container spacing={4}>
+          {!outlet
+            ? recipes.map((recipe) => (
+                <RecipeItem
+                  key={recipe._id}
+                  id={recipe._id}
+                  title={recipe.title}
+                  photoGallery={recipe.photoGallery}
+                  instructions={recipe.instructions}
+                  owner={recipe.owner}
+                  currentUser={user}
+                  subscribe={subscribe}
+                />
+              ))
+            : outlet}
+        </Grid>
+      </Container>
     </Grid>
   );
 };
