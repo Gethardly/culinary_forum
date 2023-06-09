@@ -8,6 +8,7 @@ export interface User {
   subscribers: User[];
   subscriptions: User[];
   recipes: string[];
+  googleId?: string;
 }
 
 export interface LoginMutation {
@@ -82,4 +83,17 @@ export interface IRecipeMutation {
   instructions: string;
   photoGallery: File[];
   owner: string;
+}
+
+export interface Message {
+  _id: string;
+  sender: User;
+  recipient: User;
+  content: string;
+  createdAt: Date;
+}
+
+export interface IncomingMessage {
+  type: string;
+  payload: Message;
 }
