@@ -139,13 +139,17 @@ const UserForm: React.FC<Props> = ({ onSubmit, existingUser = initialState, isEd
         >
           {isEdit ? 'Редактировать' : 'Зарегистрироваться'}
         </Button>
-        <Grid container justifyContent="flex-end">
-          <Grid item>
-            <Link component={RouterLink} to="/login" variant="body2">
-              Уже есть аккаунт? Войти
-            </Link>
+        {isEdit ? (
+          ''
+        ) : (
+          <Grid container justifyContent="flex-end">
+            <Grid item>
+              <Link component={RouterLink} to="/login" variant="body2">
+                Уже есть аккаунт? Войти
+              </Link>
+            </Grid>
           </Grid>
-        </Grid>
+        )}
       </Box>
     </Box>
   );
