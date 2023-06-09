@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { LoginMutation } from '../../types';
-import { useNavigate } from 'react-router-dom';
+import { LoginMutation, User } from '../../types';
+import { useNavigate, Navigate } from 'react-router-dom';
 import {
   Alert,
   Avatar,
@@ -22,7 +22,11 @@ import { resetLoginError, selectLoginError, selectLoginLoading } from './usersSl
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { GoogleLogin } from '@react-oauth/google';
 
-const Login = () => {
+interface Props {
+  user: User | null;
+}
+
+const Login: React.FC<Props> = ({ user }) => {
   const dispatch = useAppDispatch();
   const loginLoading = useAppSelector(selectLoginLoading);
   const loginError = useAppSelector(selectLoginError);
@@ -32,6 +36,7 @@ const Login = () => {
     password: '',
   });
   const [showPassword, setShowPassword] = React.useState(false);
+
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -59,6 +64,10 @@ const Login = () => {
       dispatch(resetLoginError());
     };
   }, [dispatch]);
+
+  if (user) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <Container component="main" maxWidth="xs">

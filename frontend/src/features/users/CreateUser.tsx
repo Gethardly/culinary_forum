@@ -1,17 +1,25 @@
 import React from 'react';
 import { Container } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { UserMutation } from '../../types';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { User, UserMutation } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { createUser } from './usersThunks';
 import { selectRegisterError, selectRegisterLoading } from './usersSlice';
 import UserForm from './components/UserForm';
 
-const CreateUser = () => {
+interface Props {
+  user: User | null;
+}
+
+const CreateUser: React.FC<Props> = ({ user }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const creating = useAppSelector(selectRegisterLoading);
   const error = useAppSelector(selectRegisterError);
+
+  if (user) {
+    return <Navigate to="/" />;
+  }
 
   const submitFormHandler = async (user: UserMutation) => {
     await dispatch(createUser(user)).unwrap();
